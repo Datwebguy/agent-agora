@@ -8,7 +8,7 @@ Live at: https://agentagora.fly.dev
 
 ## What Makes It Different
 
-Free AI tools give you text. Agent Agora gives you proof. Every completed task produces a deterministic SHA-256 attestation hash recorded on Kite chain that you can verify independently. The autonomous agent runs continuously on fly.io, scanning 50 crypto assets every 5 minutes and posting signed BUY/SELL/HOLD decisions to a public feed without any human in the loop.
+Free AI tools give you text. Agent Agora gives you proof. Every completed task produces a SHA-256 attestation hash that is immediately written to Kite Mainnet as a signed on-chain transaction. The resulting Kite chain tx hash is shown in the Work Receipt with a direct link to kitescan.ai — anyone can verify the agent ran the task without trusting Agent Agora at all. The autonomous agent runs continuously on fly.io, scanning 50 crypto assets every 5 minutes and posting signed BUY/SELL/HOLD decisions to a public feed — each decision also written to Kite chain with a verifiable tx hash.
 
 ## Live Skills
 
@@ -206,6 +206,7 @@ Required production secrets:
 ```bash
 fly secrets set \
   SERVICE_WALLET=0x_your_kite_merchant_wallet \
+  SERVICE_WALLET_KEY=0x_your_signing_wallet_private_key \
   KITE_RPC_URL=https://rpc.gokite.ai/ \
   ADMIN_KEY=replace-with-a-strong-key \
   OPENAI_API_KEY=... \
@@ -257,18 +258,22 @@ The worker scans 50 assets every 5 minutes and posts signed decisions to the fee
 Required runtime environment:
 
 ```bash
-SERVICE_WALLET=<Kite merchant wallet>
+SERVICE_WALLET=<Kite merchant wallet — receives USDC payments>
+SERVICE_WALLET_KEY=<private key of a separate MetaMask signing wallet — writes attestations to chain>
 AUDIT_LOG=/data/audit.jsonl
 ADMIN_KEY=<strong admin key>
 ```
+
+`SERVICE_WALLET_KEY` is a standard EOA wallet created in MetaMask, separate from the Kite Passport payment wallet. It only needs a small amount of Kite native token for gas — approximately 0.004 KITE per attestation transaction. If not set, the platform runs normally but attestation hashes are stored off-chain only.
 
 ## Judging Demo Flow
 
 1. Open `/` and see the live platform with cinematic background animations.
 2. Open `/session`, send 0.50 USDC with `kpass wallet send`, paste the returned tx hash, and receive an Agent Session key.
-3. Open `/work`, paste the session key, submit a task, and see the Work Receipt with attestation hash after it completes.
-4. Open `/agent` and see the autonomous agent's live BUY/SELL/HOLD decisions with on-chain proof hashes updated every 5 minutes.
-5. Open `/app` to see aggregate platform activity without any user wallet details exposed.
+3. Open `/work`, paste the session key, submit a task, and see the Work Receipt with attestation hash and Kite chain tx after it completes.
+4. Click **View on Kitescan** in the Work Receipt — the attestation transaction is independently verifiable on kitescan.ai.
+5. Open `/agent` and see the autonomous agent's live BUY/SELL/HOLD decisions, each with a kitescan.ai link proving the decision was written to Kite Mainnet.
+6. Open `/app` to see aggregate platform activity without any user wallet details exposed.
 
 ## Disclaimer
 
