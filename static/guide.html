@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agent Agora — How to Use</title>
+<link rel="icon" type="image/png" href="/static/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg:#111; --bg2:#161616; --bg3:#1c1c1c; --card:#181818;
+  --border:rgba(255,255,255,0.06); --border2:rgba(255,255,255,0.11);
+  --green:#00d97e; --green-dim:rgba(0,217,126,0.10);
+  --red:#e03333; --amber:#f5a623; --blue:#4b8ef5;
+  --text:#ececec; --text2:#888; --text3:#505050;
+  --font:'DM Sans',sans-serif; --mono:'Space Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.026) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.026) 1px,transparent 1px);
+  background-size:72px 72px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;padding:0 28px;gap:12px;
+  border-bottom:1px solid var(--border);background:rgba(17,17,17,0.92);backdrop-filter:blur(12px);}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.logo img{width:28px;height:28px;border-radius:7px;}
+.logo-name{font-size:15px;font-weight:700;color:var(--text);}
+.nav-links{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.nav-link{color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;padding:5px 11px;border-radius:6px;}
+.nav-link:hover,.nav-link.active{color:var(--text);background:rgba(255,255,255,0.06);}
+.nav-cta{background:var(--green);color:#0a1a12;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;text-decoration:none;margin-left:4px;}
+
+/* PAGE */
+.page{max-width:860px;margin:0 auto;padding:80px 24px 80px;position:relative;z-index:1;}
+.page-hero{padding:40px 0 48px;border-bottom:1px solid var(--border);margin-bottom:48px;}
+.page-hero h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1px;margin-bottom:12px;}
+.page-hero p{font-size:16px;color:var(--text2);line-height:1.7;max-width:600px;}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:40px;}
+.toc-title{font-size:12px;font-weight:700;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.toc-list li a{color:var(--text2);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:8px;}
+.toc-list li a::before{content:"";display:block;width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.toc-list li a:hover{color:var(--green);}
+
+/* SECTIONS */
+.guide-section{margin-bottom:52px;}
+.guide-section h2{font-size:22px;font-weight:800;letter-spacing:-0.4px;margin-bottom:8px;padding-top:8px;}
+.guide-section > p{font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:20px;}
+.guide-section h3{font-size:16px;font-weight:700;margin-bottom:8px;margin-top:24px;}
+
+/* USER TYPE CARDS */
+.user-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:8px;}
+.user-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px 20px;}
+.user-card-icon{font-size:28px;margin-bottom:12px;}
+.user-card-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+.user-card-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;}
+.user-card-tag{font-size:10px;font-family:var(--mono);font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block;}
+.user-card-tag.free{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,217,126,0.2);}
+.user-card-tag.paid{background:rgba(75,142,245,0.1);color:var(--blue);border:1px solid rgba(75,142,245,0.2);}
+.user-card-tag.dev{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2);}
+
+/* STEP BLOCKS */
+.step-block{display:flex;gap:16px;align-items:flex-start;margin-bottom:20px;}
+.step-circle{width:30px;height:30px;border-radius:50%;background:var(--green);color:#0a1a12;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-body{flex:1;}
+.step-body strong{font-size:14px;font-weight:700;display:block;margin-bottom:4px;}
+.step-body p{font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.65;}
+.cmd{font-family:var(--mono);font-size:11px;color:var(--green);background:#0d0d0d;border:1px solid var(--border);border-radius:6px;padding:9px 12px;display:block;margin-top:6px;word-break:break-all;line-height:1.7;}
+
+/* CALLOUT */
+.callout{border-radius:10px;padding:16px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;}
+.callout.green{background:rgba(0,217,126,0.06);border:1px solid rgba(0,217,126,0.2);}
+.callout.blue{background:rgba(75,142,245,0.06);border:1px solid rgba(75,142,245,0.2);}
+.callout.amber{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.callout-body{font-size:13px;color:var(--text2);line-height:1.65;}
+.callout-body strong{color:var(--text);}
+
+/* ENDPOINT TABLE */
+.ep-table{width:100%;border-collapse:collapse;margin-bottom:8px;}
+.ep-table th{text-align:left;font-size:10px;font-family:var(--mono);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:8px 12px;border-bottom:1px solid var(--border);}
+.ep-table td{font-size:12px;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+.ep-table tr:last-child td{border-bottom:none;}
+.ep-table code{font-family:var(--mono);color:var(--text2);}
+.ep-table .method{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block;}
+.get-m{background:rgba(75,142,245,0.12);color:var(--blue);}
+.post-m{background:rgba(245,166,35,0.12);color:var(--amber);}
+.price-tag{color:var(--green);font-family:var(--mono);font-size:11px;}
+
+/* FAQ */
+.faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.faq-q{padding:14px 18px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;}
+.faq-q::after{content:"+";font-size:18px;color:var(--text3);}
+.faq-item.open .faq-q::after{content:"−";}
+.faq-a{display:none;padding:0 18px 14px;font-size:13px;color:var(--text2);line-height:1.7;}
+.faq-item.open .faq-a{display:block;}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:40px 0;}
+.site-footer{position:relative;z-index:1;padding:28px 24px 34px;color:var(--text3);font:12px var(--mono);text-align:center;border-top:1px solid var(--border);margin-top:12px}.site-footer .footer-links{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:9px}.site-footer a{color:var(--text2);text-decoration:none}.site-footer a:hover{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav>
+  <a class="logo" href="/">
+    <img src="/static/logo.png" alt="Agent Agora"/>
+    <span class="logo-name">Agent Agora</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="/work">Work</a>
+    <a class="nav-link" href="/session">Session</a>
+    <a class="nav-link" href="/agent">Agent</a>
+    <a class="nav-link" href="/app">Dashboard</a>
+    <a class="nav-link active" href="/guide">Guide</a>
+    <a class="nav-cta" href="/session">Create Session &rarr;</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-hero">
+    <h1>How to Use Agent Agora</h1>
+    <p>A complete guide for the live platform: issue paid work orders, use market intelligence, send email deliverables, and verify settlement proof on Kite.</p>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#what-is-it">What is Agent Agora?</a></li>
+      <li><a href="#agent-session">Create an Agent Session</a></li>
+      <li><a href="#for-everyone">Run Agent Work</a></li>
+      <li><a href="#premium">Agent Sessions and Paid Keys</a></li>
+      <li><a href="#kite-passport">Using Kite Agent Passport</a></li>
+      <li><a href="#developers">For Developers: API Integration</a></li>
+      <li><a href="#endpoints">All Endpoints at a Glance</a></li>
+      <li><a href="#dashboard">Reading the Dashboard</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </div>
+
+  <!-- WHAT IS IT -->
+  <div class="guide-section" id="what-is-it">
+    <h2>What is Agent Agora?</h2>
+    <p>Agent Agora is an autonomous agent work platform built on Kite L1 Mainnet. Users create a bounded Agent Session or provide one-time Kite proof, submit tasks, and the platform routes them to live skills with proof attached to the result.</p>
+    <p>It is designed to work for three types of users:</p>
+    <div class="user-cards">
+      <div class="user-card">
+        <div class="user-card-icon">&#128269;</div>
+        <div class="user-card-title">Work Users</div>
+        <div class="user-card-desc">Run research, writing, travel, receipt, code review, shopping brief, and market tasks from the browser.</div>
+        <span class="user-card-tag free">WORK UI</span>
+      </div>
+      <div class="user-card">
+        <div class="user-card-icon">&#127919;</div>
+        <div class="user-card-title">Market Users</div>
+        <div class="user-card-desc">Search crypto assets for free, or use a paid key to unlock full BUY/SELL/HOLD market signals.</div>
+        <span class="user-card-tag paid">MARKET API</span>
+      </div>
+      <div class="user-card">
+        <div class="user-card-icon">&#129302;</div>
+        <div class="user-card-title">AI Agents &amp; Devs</div>
+        <div class="user-card-desc">Use standard HTTP endpoints with paid keys, x402 where available, or direct Kite tx proof for production-safe settlement.</div>
+        <span class="user-card-tag dev">KITE PROOF</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <div class="guide-section" id="agent-session">
+    <h2>Create an Agent Session</h2>
+    <p>The recommended public flow is to create a 24-hour Agent Session. You pay once on Kite, Agent Agora verifies that settlement, and the platform returns a bounded <code style="font-family:var(--mono);color:var(--green)">aa_</code> session key. The Work page stores it in your browser and uses it automatically.</p>
+
+    <div class="step-block">
+      <div class="step-circle">1</div>
+      <div class="step-body">
+        <strong>Open the Session page</strong>
+        <p>Visit <a href="/session" style="color:var(--green)">agentagora.fly.dev/session</a>.</p>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">2</div>
+      <div class="step-body">
+        <strong>Send the session payment</strong>
+        <p>Send exactly 0.50 USDC on Kite L1 Mainnet. Copy the returned transaction hash.</p>
+        <code class="cmd">kpass wallet send --to 0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283 --amount 0.50 --asset USDC</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">3</div>
+      <div class="step-body">
+        <strong>Mint the Agent Session</strong>
+        <p>Paste the returned <code style="font-family:var(--mono);color:var(--green)">0x...</code> hash into the Session page and click Create Session. The returned <code style="font-family:var(--mono);color:var(--green)">aa_</code> key is saved only in that browser.</p>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">4</div>
+      <div class="step-body">
+        <strong>Run work without a new tx each time</strong>
+        <p>Open the Work page, write a task, and run the agent. The saved session key is sent as <code style="font-family:var(--mono);color:var(--green)">X-API-Key</code>.</p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-icon">&#9989;</span>
+      <div class="callout-body"><strong>What is functional today:</strong> Agent Sessions are live as bounded 24-hour keys backed by verified Kite settlement. Browser-native Passport budget approval is still dependent on Kite paid-execution host support, so direct Kite settlement remains the reliable public path.</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- FOR EVERYONE -->
+  <div class="guide-section" id="for-everyone">
+    <h2>Run Agent Work</h2>
+    <p>The main work surface is the Work page. It accepts plain-English tasks and routes them to supported live skills. Create an Agent Session first for repeated use, or paste a one-time Kite tx hash for a single task.</p>
+
+    <div class="step-block">
+      <div class="step-circle">1</div>
+      <div class="step-body">
+        <strong>Go to the Work page</strong>
+        <p>Visit <a href="/work" style="color:var(--green)">agentagora.fly.dev/work</a> in your browser.</p>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">2</div>
+      <div class="step-body">
+        <strong>Write a task</strong>
+        <p>Examples: research a topic and email the report, review pasted code, create a Kite tx receipt, build a travel plan, or scan market risk.</p>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">3</div>
+      <div class="step-body">
+        <strong>Attach Kite proof or use your saved session</strong>
+        <p>If you created an Agent Session, the Work page auto-fills your <code style="font-family:var(--mono);color:var(--green)">aa_</code> key from browser storage. Otherwise paste a one-time Kite transaction hash from a direct USDC payment.</p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-icon">&#9989;</span>
+      <div class="callout-body"><strong>Creative image and frontend generation are not offered.</strong> Agent Agora only exposes skills that can produce dependable paid work today: market intelligence, research, writing/email, code review, receipts, travel, service discovery, and shopping briefs.</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- PREMIUM ACCESS -->
+  <div class="guide-section" id="premium">
+    <h2>Agent Sessions and Paid Keys</h2>
+    <p>The free tier gives you market data. The premium tier adds a composite <strong>AI trade signal</strong>: BUY / SELL / HOLD with a confidence percentage (0&ndash;100), risk level (1&ndash;5), stop-loss %, take-profit %, and a reasoning explanation derived from trend + fear/greed + leverage data.</p>
+    <p>Repeated access works by using an <code style="font-family:var(--mono);color:var(--green)">aa_</code> Agent Session key with work orders and market API endpoints. The recommended public flow is direct Kite settlement: send 0.50 USDC, then mint the key on the Session page or with the API.</p>
+
+    <h3>Recommended for Work Orders &mdash; Direct Kite Settlement</h3>
+    <p><strong>Cost: 0.05 USDC.</strong> This is for one work order only. Send USDC to the Agent Agora service wallet, then paste the returned transaction hash into <a href="/work" style="color:var(--green)">/work</a>. Do not use this 0.05 tx hash on <code style="font-family:var(--mono);color:var(--green)">/api/subscribe</code>.</p>
+    <code class="cmd">kpass wallet send --to 0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283 --amount 0.05 --asset USDC</code>
+
+    <h3>Recommended &mdash; Create an Agent Session</h3>
+    <p><strong>Cost: 0.50 USDC.</strong> This is the only direct-payment amount that can mint a 24-hour <code style="font-family:var(--mono);color:var(--green)">aa_</code> Agent Session key. The simplest path is <a href="/session" style="color:var(--green)">/session</a>. If you prefer curl, use <code style="font-family:var(--mono);color:var(--green)">/api/agent/session</code>:</p>
+    <div class="step-block">
+      <div class="step-circle">1</div>
+      <div class="step-body">
+        <strong>Install kpass (first time only)</strong>
+        <code class="cmd">curl -fsSL https://agentpassport.ai/install.sh | bash</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">2</div>
+      <div class="step-body">
+        <strong>Make sure your wallet has USDC</strong>
+        <p>Fund via Banxa (card) or bridge from another chain. Check your balance:</p>
+        <code class="cmd">kpass wallet balance --output json</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">3</div>
+      <div class="step-body">
+        <strong>Send the subscription payment</strong>
+        <p>This sends 0.50 USDC to the Agent Agora service wallet. Copy the returned <code style="font-family:var(--mono);color:var(--green)">0x...</code> transaction hash exactly.</p>
+        <code class="cmd">kpass wallet send --to 0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283 --amount 0.50 --asset USDC</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">4</div>
+      <div class="step-body">
+        <strong>Mint the Agent Session key</strong>
+        <p>Copy the <code style="font-family:var(--mono);color:var(--green)">0x...</code> hash from the previous step and paste it directly into this command in place of <code style="font-family:var(--mono);color:var(--green)">YOUR_TX_HASH</code>:</p>
+        <code class="cmd">curl -X POST https://agentagora.fly.dev/api/agent/session -H "X-Kite-Tx-Hash: YOUR_TX_HASH"</code>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px;">For example, if your hash is <code style="font-family:var(--mono);color:var(--text2)">0x577a0aa1...cd3b4</code>, run:</p>
+        <code class="cmd">curl -X POST https://agentagora.fly.dev/api/agent/session -H "X-Kite-Tx-Hash: 0x577a0aa1ebea2dbfb0932fd88490328ad1f33fe630cce80804226b79da8cd3b4"</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">5</div>
+      <div class="step-body">
+        <strong>Use the key with the API</strong>
+        <p>Copy the <code style="font-family:var(--mono);color:var(--green)">session_key</code> or <code style="font-family:var(--mono);color:var(--green)">api_key</code> value and send it as <code style="font-family:var(--mono);color:var(--green)">X-API-Key</code>, or let the Session page save it for the Work page.</p>
+      </div>
+    </div>
+
+    <h3>Advanced &mdash; Via curl / any HTTP client</h3>
+    <p>Paste your 0.50 USDC transaction hash directly into the command. The format is always <code style="font-family:var(--mono);color:var(--green)">X-Kite-Tx-Hash: 0x...</code> — the hash goes after the colon, not before it.</p>
+    <code class="cmd">curl -X POST https://agentagora.fly.dev/api/agent/session -H "X-Kite-Tx-Hash: 0x_your_0.50_usdc_tx_hash_here"<br/><br/># Success response:<br/># {"session_key": "aa_xxx...", "expires_at": "...", "wallet": "direct-kite-wallet"}</code>
+
+    <div class="callout amber">
+      <span class="callout-icon">&#9200;</span>
+      <div class="callout-body"><strong>Use the right amount.</strong> 0.05 USDC unlocks one work order. 0.50 USDC mints an <code style="font-family:var(--mono)">aa_</code> Agent Session key. Keys expire after 24 hours.</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- KITE PASSPORT -->
+  <div class="guide-section" id="kite-passport">
+    <h2>Using Kite Agent Passport</h2>
+    <p>Kite Agent Passport is a payments CLI tool built by the Kite team. It gives your agent (or you) a real USDC wallet on Kite L1 Mainnet. Agent Agora supports direct Kite tx proof for work orders and subscriptions, plus x402 paid execution for clients and hosts supported by Passport discovery.</p>
+
+    <div class="callout blue">
+      <span class="callout-icon">&#8505;</span>
+      <div class="callout-body"><strong>What is kpass?</strong> The <code style="font-family:var(--mono)">kpass</code> CLI manages a wallet on Kite chain (ID 2366). You fund it with USDC, then send a direct payment to Agent Agora and use the returned tx hash as proof.</div>
+    </div>
+
+    <h3>Full kpass setup</h3>
+    <div class="step-block">
+      <div class="step-circle">1</div>
+      <div class="step-body">
+        <strong>Install kpass</strong>
+        <code class="cmd">curl -fsSL https://agentpassport.ai/install.sh | bash</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">2</div>
+      <div class="step-body">
+        <strong>Create your account (email, no password)</strong>
+        <code class="cmd">kpass signup init --email you@example.com<br/>kpass signup poll<br/>kpass signup exchange</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">3</div>
+      <div class="step-body">
+        <strong>Check your wallet address and fund it</strong>
+        <p>Get your wallet address, then fund via Banxa (card) or bridge USDC from Ethereum / Polygon via the <a href="https://bridge.gokite.ai" target="_blank" style="color:var(--green)">Kite Bridge</a>.</p>
+        <code class="cmd">kpass wallet balance --output json<br/>kpass status --output json</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">4</div>
+      <div class="step-body">
+        <strong>Settle a work order directly</strong>
+        <code class="cmd">kpass wallet send --to 0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283 --amount 0.05 --asset USDC</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">5</div>
+      <div class="step-body">
+        <strong>Paste the tx hash into the Work page</strong>
+        <code class="cmd"># Paste the returned 0x... hash into /work, then run the task again.</code>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-circle">6</div>
+      <div class="step-body">
+        <strong>Create an Agent Session key</strong>
+        <p>Send 0.50 USDC to the service wallet. Copy the returned <code style="font-family:var(--mono);color:var(--green)">0x...</code> hash, then paste it directly into the curl command:</p>
+        <code class="cmd">kpass wallet send --to 0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283 --amount 0.50 --asset USDC<br/><br/># Paste your returned hash in place of YOUR_TX_HASH:<br/>curl -X POST https://agentagora.fly.dev/api/agent/session -H "X-Kite-Tx-Hash: YOUR_TX_HASH"</code>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px;">The hash goes after <code style="font-family:var(--mono);color:var(--text2)">X-Kite-Tx-Hash:</code> — the full thing looks like:<br/><code style="font-family:var(--mono);color:var(--text2)">-H "X-Kite-Tx-Hash: 0x577a0aa1ebea2..."</code></p>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <span class="callout-icon">&#128279;</span>
+      <div class="callout-body"><strong>More kpass docs:</strong> <a href="https://agentpassport.ai/quickstart/" target="_blank" style="color:var(--green)">agentpassport.ai/quickstart</a> &mdash; Official Kite Agent Passport quickstart guide.</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- DEVELOPERS -->
+  <div class="guide-section" id="developers">
+    <h2>For Developers: API Integration</h2>
+    <p>Paid endpoints return standard HTTP responses and accept paid keys. The work-order endpoint also accepts direct Kite transaction proof with <code style="font-family:var(--mono)">X-Kite-Tx-Hash</code>, which is the current recommended path for the public Fly deployment.</p>
+
+    <h3>Python example &mdash; per-call with API key</h3>
+    <code class="cmd">import httpx<br/><br/>headers = {'X-API-Key': 'aa_your_key_here'}<br/>r = httpx.get('https://agentagora.fly.dev/api/market?asset=BTC', headers=headers)<br/>data = r.json()<br/>print(data['asset'], data['price_usd'], data.get('signal'))</code>
+
+    <h3>Python example &mdash; batch query (multiple assets)</h3>
+    <code class="cmd">r = httpx.get(<br/>    'https://agentagora.fly.dev/api/market/batch?assets=BTC,ETH,SOL',<br/>    headers={'X-API-Key': 'aa_your_key_here'}<br/>)<br/>for item in r.json()['results']:<br/>    print(item['asset'], item['price_usd'])</code>
+
+    <h3>Python example &mdash; trade signal</h3>
+    <code class="cmd">r = httpx.get('https://agentagora.fly.dev/api/signals/ETH',<br/>    headers={'X-API-Key': 'aa_your_key_here'})<br/>sig = r.json()<br/>print(sig['action'], sig['confidence'], sig['reasoning'])</code>
+
+    <h3>Discover endpoint (machine-readable manifest)</h3>
+    <p>Your agent can call this first to learn all endpoints, pricing, and supported assets before making any payments:</p>
+    <code class="cmd">curl https://agentagora.fly.dev/api/discover</code>
+
+    <h3>Python example &mdash; work order with Kite tx proof</h3>
+    <code class="cmd">import httpx<br/><br/>headers = {'X-Kite-Tx-Hash': '0x_your_kite_payment_hash'}<br/>payload = {'prompt': 'Research top AI agent grants and email me the report at you@example.com'}<br/>r = httpx.post('https://agentagora.fly.dev/api/agent/work-orders', headers=headers, json=payload)<br/>print(r.json())</code>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- ENDPOINTS -->
+  <div class="guide-section" id="endpoints">
+    <h2>All Endpoints at a Glance</h2>
+    <table class="ep-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>What it returns</th>
+          <th>Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/market/free</code></td>
+          <td>Limited market data &mdash; price, change, basic signals</td>
+          <td><span style="color:var(--green)">Free</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/market</code></td>
+          <td>Full market data for one asset including all signal fields</td>
+          <td><span class="price-tag">$0.03 USDC</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/market/batch</code></td>
+          <td>Full data for up to 10 assets, single payment</td>
+          <td><span class="price-tag">$0.02/asset</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/signals/{asset}</code></td>
+          <td>BUY/SELL/HOLD signal with confidence, risk, stop/take levels, reasoning</td>
+          <td><span class="price-tag">$0.03 USDC</span></td>
+        </tr>
+        <tr>
+          <td><span class="method post-m">POST</span></td>
+          <td><code>/api/agent/work-orders</code></td>
+          <td>Runs live agent skills: market, research, writing/email, code review, receipts, travel, shopping briefs</td>
+          <td><span class="price-tag">$0.05 USDC</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/agent/skills</code></td>
+          <td>Public registry of currently available work-order skills</td>
+          <td><span style="color:var(--green)">Free</span></td>
+        </tr>
+        <tr>
+          <td><span class="method post-m">POST</span></td>
+          <td><code>/api/agent/session</code></td>
+          <td>Returns a 24-hour Agent Session key after verified 0.50 USDC Kite settlement</td>
+          <td><span class="price-tag">$0.50 USDC</span></td>
+        </tr>
+        <tr>
+          <td><span class="method post-m">POST</span></td>
+          <td><code>/api/subscribe</code></td>
+          <td>Backward-compatible alias for creating a 24-hour <code>aa_</code> Agent Session key</td>
+          <td><span class="price-tag">$0.50 USDC</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/agents</code></td>
+          <td>Aggregate payer count only; wallet addresses are not exposed publicly</td>
+          <td><span style="color:var(--green)">Free</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/stats</code></td>
+          <td>Platform stats: total calls, revenue, subscriptions, top assets</td>
+          <td><span style="color:var(--green)">Free</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/discover</code></td>
+          <td>Machine-readable endpoint manifest with payment terms</td>
+          <td><span style="color:var(--green)">Free</span></td>
+        </tr>
+        <tr>
+          <td><span class="method get-m">GET</span></td>
+          <td><code>/api/health</code></td>
+          <td>Service status, version, pricing, active subscriptions</td>
+          <td><span style="color:var(--green)">Free</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;font-size:13px;color:var(--text3);">Work orders accept direct Kite tx proof with <code style="font-family:var(--mono)">X-Kite-Tx-Hash</code>. Market endpoints accept an <code style="font-family:var(--mono)">X-API-Key: aa_...</code> header from a valid subscription, and x402 where the client/host flow is supported.</p>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- DASHBOARD -->
+  <div class="guide-section" id="dashboard">
+    <h2>Reading the Dashboard</h2>
+    <p>The <a href="/app" style="color:var(--green)">Operator Dashboard</a> shows live platform activity pulled from the on-chain audit log. Here is what each section means:</p>
+
+    <h3>Stat Cards (top row)</h3>
+    <p><strong>Total Paid Calls</strong> &mdash; every call that was settled with a USDC payment (per-call or subscription-activated).<br/>
+    <strong>USDC Earned</strong> &mdash; total USDC received by the service wallet. This is the merchant revenue.<br/>
+    <strong>Active Sessions</strong> &mdash; Agent Session keys that are currently valid (not expired).<br/>
+    <strong>Subscriptions Sold</strong> &mdash; lifetime count of 24h keys issued.<br/>
+    <strong>Unique Payers</strong> &mdash; aggregate number of distinct payers. Public visitors do not see wallet addresses.<br/>
+    <strong>Assets Tracked</strong> &mdash; how many distinct assets have been queried.</p>
+
+    <h3>Privacy Notice</h3>
+    <p>The public dashboard intentionally does not expose wallet leaderboards, transaction history, active session keys, private prompts, or personal task details. It shows aggregate platform telemetry only.</p>
+
+    <h3>System Health panel</h3>
+    <p><strong>service wallet</strong> &mdash; this is the <em>merchant</em> wallet address that receives USDC payments from users. It is the platform&apos;s wallet, not yours. It is public by design &mdash; anyone can verify payments on-chain at Kite L1 block explorer.<br/>
+    <strong>call price</strong> &mdash; current price per single market query ($0.03 USDC).<br/>
+    <strong>facilitator</strong> &mdash; the x402 payment facilitator used: pieverse.io.<br/>
+    <strong>active sessions</strong> &mdash; number of currently-valid Agent Session keys in memory.</p>
+
+    <div class="callout blue">
+      <span class="callout-icon">&#128274;</span>
+      <div class="callout-body"><strong>The service wallet is the platform&apos;s merchant wallet &mdash; not your personal wallet.</strong> It is displayed publicly so anyone can verify that payments are real and on-chain. Your personal wallet (if you pay) is visible in the Agent Leaderboard only as the payer address from the on-chain transaction.</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- FAQ -->
+  <div class="guide-section" id="faq">
+    <h2>FAQ</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do I need a crypto wallet to use this?</div>
+      <div class="faq-a">No. The core demo flow is the Work page, which only needs a Kite payment proof when you want to run paid work. You only need a Kite L1 USDC wallet if you want premium trade signals or API access.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What blockchain is used for payments?</div>
+      <div class="faq-a">Kite L1 Mainnet (Chain ID 2366). Payments are in USDC. Work orders can use direct Kite transaction hashes as proof. Market subscription and pay-per-call flows also expose x402 payment requirements where supported. You can bridge USDC at <a href="https://bridge.gokite.ai" target="_blank" style="color:var(--green)">bridge.gokite.ai</a>.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is the service wallet shown on the dashboard?</div>
+      <div class="faq-a">It is the <strong>platform&apos;s merchant wallet</strong> that receives USDC from paying users. It is not your personal wallet. It is public by design so that anyone can verify on-chain that payments are real. Think of it like a store&apos;s bank account number printed on a receipt.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How accurate are the BUY/SELL/HOLD signals?</div>
+      <div class="faq-a">Signals are derived algorithmically from three data sources: price trend, Fear &amp; Greed index (contrarian logic), and derivatives leverage positioning. They are informational only and should not be used as sole investment advice. Always do your own research.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">My aa_ key stopped working. What happened?</div>
+      <div class="faq-a">Agent Session keys expire after exactly 24 hours or when their quota is used. Create a fresh session at <a href="/session" style="color:var(--green)">/session</a>, or use a one-time direct settlement tx hash for a single task.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I use this from my own app or bot?</div>
+      <div class="faq-a">Yes. All endpoints are standard HTTP. Pass <code style="font-family:var(--mono)">X-Kite-Tx-Hash</code> for one-time work orders, <code style="font-family:var(--mono)">X-API-Key</code> with an Agent Session key for repeated access, or implement x402 where your client supports it. See the <a href="#developers" style="color:var(--green)">developer examples</a> above.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What assets are supported?</div>
+      <div class="faq-a">Any asset available on major exchanges via CoinGecko and the derivatives data providers. Common examples: BTC, ETH, SOL, BNB, DOGE, AVAX, XRP, ADA, LINK, DOT, MATIC, UNI, ATOM. Pass the ticker symbol as the <code style="font-family:var(--mono)">asset</code> query parameter.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is my personal wallet address made public?</div>
+      <div class="faq-a">When you make a paid call, your wallet address (as the payer) is recorded in the audit log and visible in the Agent Leaderboard. This is standard blockchain transparency &mdash; on-chain transactions are public by nature. Your key is never exposed; only the payer address from the transaction is stored.</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <div style="background:rgba(0,217,126,0.05);border:1px solid rgba(0,217,126,0.15);border-radius:12px;padding:28px 24px;text-align:center;margin-top:40px;">
+    <div style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Ready to start?</div>
+    <h3 style="font-size:22px;font-weight:800;margin-bottom:8px;">Run a real work order</h3>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:20px;">Use a Kite tx hash as settlement proof, then let the agent complete supported work.</p>
+    <a href="/work" style="background:var(--green);color:#0a1a12;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:700;text-decoration:none;display:inline-block;">Open Work Page &rarr;</a>
+  </div>
+</div>
+<footer class="site-footer">
+  <div>Agent Agora - autonomous paid work and auditability on Kite.</div>
+  <div class="footer-links">
+    <a href="https://x.com/Agent_Agora" target="_blank" rel="noreferrer">X</a>
+    <a href="https://github.com/Datwebguy/agent-agora" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="https://docs.gokite.ai/" target="_blank" rel="noreferrer">Kite Docs</a>
+    <a href="https://docs.gokite.ai/kite-agent-passport/kite-agent-passport" target="_blank" rel="noreferrer">Agent Passport</a>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  var item = el.parentElement;
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>

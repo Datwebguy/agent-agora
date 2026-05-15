@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agent Agora — Work Orders</title>
+<link rel="icon" type="image/png" href="/static/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/anim.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="/static/anim.js" defer></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#111;--card:#181818;--card2:#141414;--border:rgba(255,255,255,.09);--green:#00d97e;--red:#e03333;--amber:#f5a623;--text:#eee;--text2:#999;--text3:#555;--font:'DM Sans',sans-serif;--mono:'Space Mono',monospace}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+.grid-bg{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.026) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.026) 1px,transparent 1px);background-size:86px 86px}
+nav{height:58px;display:flex;align-items:center;padding:0 32px;border-bottom:1px solid var(--border);background:rgba(17,17,17,.92);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--text);text-decoration:none}.brand img{width:28px;height:28px;border-radius:7px}.nav-links{margin-left:auto;display:flex;gap:6px}.nav-links a{color:var(--text2);text-decoration:none;padding:8px 12px;border-radius:8px;font-size:14px;font-weight:600}.nav-links a.active,.nav-links a:hover{background:rgba(255,255,255,.06);color:var(--text)}
+main{max-width:1080px;margin:0 auto;padding:72px 24px 80px;position:relative;z-index:1}.hero{text-align:center;margin-bottom:34px}.hero h1{font-size:44px;line-height:1.05;margin-bottom:12px}.hero p{color:var(--text2);font-size:16px}
+.composer{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px}.composer label{display:block;color:var(--text2);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.prompt{width:100%;min-height:92px;background:#101010;border:1px solid var(--border);border-radius:10px;color:var(--text);font:15px/1.5 var(--font);padding:14px;resize:vertical;outline:none}.row{display:flex;gap:10px;margin-top:12px;align-items:center}.key{flex:1;background:#101010;border:1px solid var(--border);border-radius:9px;color:var(--green);font:12px var(--mono);padding:12px;outline:none}.run{background:var(--green);color:#08150f;border:0;border-radius:9px;padding:12px 20px;font-weight:800;cursor:pointer}
+.examples{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}@media(max-width:760px){.examples{grid-template-columns:1fr}.row{flex-direction:column}.key,.run{width:100%}.hero h1{font-size:34px}}
+.ex{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:left;color:var(--text);cursor:pointer;font:14px/1.45 var(--font)}.ex span{font-family:var(--mono);color:var(--green);font-size:12px;margin-right:6px}.ex:hover{border-color:rgba(0,217,126,.45)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:16px}.panel h2{font-size:16px;margin-bottom:12px}.muted{color:var(--text2)}.skills{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:900px){.skills{grid-template-columns:1fr 1fr}}@media(max-width:620px){.skills{grid-template-columns:1fr}}
+.skill{background:#121212;border:1px solid var(--border);border-radius:10px;padding:14px}.skill-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px}.skill-name{font-weight:800}.badge{font:10px var(--mono);padding:3px 7px;border-radius:20px;background:rgba(255,255,255,.06);color:var(--text2)}.badge.live{background:rgba(0,217,126,.12);color:var(--green)}.badge.needs_merchant{background:rgba(245,166,35,.12);color:var(--amber)}.skill p{font-size:13px;color:var(--text2);line-height:1.5}
+.free-bar{background:rgba(0,217,126,.06);border:1px solid rgba(0,217,126,.2);border-radius:12px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.free-bar p{color:var(--text2);font-size:14px;margin:0}.free-bar p strong{color:var(--text)}.free-btns{display:flex;gap:8px;flex-wrap:wrap}.free-btn{background:var(--green);color:#08150f;border:0;border-radius:8px;padding:9px 14px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}.free-btn.ghost{background:rgba(255,255,255,.07);color:var(--text2)}.free-result{margin-top:14px;display:none}.free-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}@media(max-width:700px){.free-grid{grid-template-columns:1fr 1fr}}.stat-box{background:#0d0d0d;border:1px solid var(--border);border-radius:10px;padding:14px}.stat-label{font:11px var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}.stat-val{font-size:22px;font-weight:800}.stat-sub{font:12px var(--mono);margin-top:4px}.up{color:var(--green)}.down{color:var(--red)}.signal-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.sig{font:11px var(--mono);padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.06);color:var(--text2)}.result{display:none}.result pre{white-space:pre-wrap;word-break:break-word;background:#0d0d0d;border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font:12px/1.55 var(--mono);max-height:430px;overflow:auto}.error{border-color:rgba(224,51,51,.35);background:rgba(224,51,51,.08);color:#ff9d9d}.paybox{background:#0d0d0d;border:1px solid rgba(0,217,126,.22);border-radius:10px;padding:16px;color:var(--text)}.paybox p{color:var(--text2);line-height:1.55;margin:8px 0 12px}.cmd{display:block;background:#050505;border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--green);font:12px/1.55 var(--mono);white-space:pre-wrap;word-break:break-word}.mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.mini button,.mini a{border:0;border-radius:8px;background:rgba(255,255,255,.08);color:var(--text);padding:9px 12px;text-decoration:none;font-weight:700;cursor:pointer}
+.result-card{background:#0d0d0d;border:1px solid var(--border);border-radius:10px;padding:14px}.result-card h3{font-size:15px;margin-bottom:8px}.result-card p{color:var(--text2);line-height:1.55;margin-bottom:10px}.kv{font:12px var(--mono);color:var(--green);word-break:break-word}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}@media(max-width:780px){.cards{grid-template-columns:1fr}}.mini-card{background:#121212;border:1px solid var(--border);border-radius:10px;padding:12px}.mini-card strong{display:block;margin-bottom:7px}.mini-card ul{margin-left:18px;color:var(--text2);line-height:1.6}.email-box{background:#101010;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px}.email-box ul{margin-left:18px;color:var(--text2);line-height:1.6}.email-box .subject{font-weight:800;margin-bottom:8px}.decision{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding:10px 0}.decision:last-child{border-bottom:0}.pill{font:11px var(--mono);color:#08150f;background:var(--green);border-radius:20px;padding:4px 8px;height:max-content}
+.site-footer{position:relative;z-index:1;padding:28px 24px 34px;color:var(--text3);font:12px var(--mono);text-align:center;border-top:1px solid var(--border);margin-top:12px}.site-footer .footer-links{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:9px}.site-footer a{color:var(--text2);text-decoration:none}.site-footer a:hover{color:var(--green)}
+.receipt-grid{display:grid;gap:0}.receipt-kv{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:start;padding:9px 0;border-bottom:1px solid var(--border)}.receipt-kv:last-child{border-bottom:0}.receipt-label{font:11px var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding-top:2px}.receipt-val{font:12px var(--mono);color:var(--green);word-break:break-all}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="noise"></div>
+<div class="cursor-glow"></div>
+<div class="blob blob-1" style="opacity:.07"></div>
+<div class="blob blob-2" style="opacity:.06"></div>
+<nav>
+  <a class="brand" href="/"><img src="/static/logo.png" alt="Agent Agora"/><span>Agent Agora</span></a>
+  <div class="nav-links">
+    <a href="/work" class="active">Work</a>
+    <a href="/session">Session</a>
+    <a href="/agent">Agent</a>
+    <a href="/app">Dashboard</a>
+    <a href="/guide">Guide</a>
+  </div>
+</nav>
+<main>
+  <section class="hero">
+    <h1>Give The Agent One Job</h1>
+    <p>Type what you want done. The agent picks the right tool, does the work, and records on-chain proof of every action.</p>
+  </section>
+
+  <div class="free-bar">
+    <p><strong>Free preview — no key needed.</strong> See live market data instantly. For full AI analysis and on-chain proof, paste your session key below and run a work order.</p>
+    <div class="free-btns">
+      <button class="free-btn" onclick="freeSnap('BTC')">BTC Live</button>
+      <button class="free-btn ghost" onclick="freeSnap('ETH')">ETH</button>
+      <button class="free-btn ghost" onclick="freeSnap('SOL')">SOL</button>
+      <button class="free-btn ghost" onclick="freeSnap('DOGE')">DOGE</button>
+    </div>
+  </div>
+  <div class="free-result" id="free-result"></div>
+
+  <section class="composer">
+    <label for="prompt">Work order</label>
+    <textarea class="prompt" id="prompt">Watch BTC, ETH, and SOL and tell me where risk is rising.</textarea>
+    <div class="row">
+      <input class="key" id="key" placeholder="Session key (aa_...) or one-time Kite tx hash (0x...) — leave blank to see how to get one"/>
+      <button class="run" onclick="submitWork()">Run Agent</button>
+    </div>
+  </section>
+
+  <div class="examples">
+    <button class="ex" onclick="setPrompt('Watch BTC, ETH, and SOL and tell me where risk is rising.')"><span>&gt;&gt;</span>Watch BTC, ETH, and SOL and tell me where risk is rising.</button>
+    <button class="ex" onclick="setPrompt('Find the strongest BUY opportunities across supported assets.')"><span>&gt;&gt;</span>Find the strongest BUY opportunities across supported assets.</button>
+    <button class="ex" onclick="setPrompt('Buy me healthy snacks under $25 on Amazon using Kite Passport.')"><span>&gt;&gt;</span>Buy me healthy snacks under $25 on Amazon using Kite Passport.</button>
+    <button class="ex" onclick="setPrompt('Research current Web3 grants for AI agents and email the report to recipient@example.com.')"><span>&gt;&gt;</span>Research current Web3 grants for AI agents and email the report.</button>
+    <button class="ex" onclick="setPrompt('Review this API handler for production risks and security issues: paste code here.')"><span>&gt;&gt;</span>Review pasted code for production risks.</button>
+    <button class="ex" onclick="setPrompt('Create a receipt for Kite transaction 0x03249ea0607327a372874c1c836c39f6f77f9330d28c830da9b6f6fdd173e14c.')"><span>&gt;&gt;</span>Create a settlement receipt from a tx hash.</button>
+  </div>
+
+  <section class="panel result" id="result-panel">
+    <h2 id="result-title">Result</h2>
+    <pre id="result"></pre>
+  </section>
+
+  <section class="panel receipt-panel" id="receipt-panel" style="display:none;border-color:rgba(0,217,126,.3);margin-top:16px">
+    <h2 style="margin-bottom:4px">Work Receipt</h2>
+    <p class="muted" id="receipt-task" style="font-size:13px;margin-bottom:14px"></p>
+    <div class="receipt-grid">
+      <div class="receipt-kv"><span class="receipt-label">Attestation Hash</span><span class="receipt-val" id="receipt-hash"></span></div>
+      <div class="receipt-kv" id="receipt-chain-row" style="display:none"><span class="receipt-label">Kite Chain Tx</span><span class="receipt-val"><a id="receipt-chain-link" href="#" target="_blank" rel="noreferrer" style="color:var(--green);text-decoration:none" id="receipt-chain-tx"></a></span></div>
+      <div class="receipt-kv"><span class="receipt-label">Network</span><span class="receipt-val">Kite Mainnet (eip155:2366)</span></div>
+      <div class="receipt-kv"><span class="receipt-label">Settled In</span><span class="receipt-val">USDC · Kite chain</span></div>
+      <div class="receipt-kv"><span class="receipt-label">Timestamp</span><span class="receipt-val" id="receipt-ts"></span></div>
+    </div>
+    <p style="font:12px var(--mono);color:var(--text3);margin-top:12px">This hash is unique to this work order. It cryptographically proves the agent ran this task on Kite chain — verify it independently on kitescan.ai.</p>
+    <div class="mini" style="margin-top:12px">
+      <button onclick="copyAttestation()">Copy hash</button>
+      <a id="receipt-explorer-btn" href="https://kitescan.ai" target="_blank" rel="noreferrer" style="display:none">View on Kitescan</a>
+      <a href="/agent">View agent feed</a>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Skill Registry</h2>
+    <p class="muted" style="margin-bottom:14px">Live skills execute after valid Kite settlement proof. The recommended path is an Agent Session; direct tx hashes remain supported for single-task access.</p>
+    <div class="skills" id="skills"></div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div>Agent Agora - autonomous paid work and auditability on Kite.</div>
+  <div class="footer-links">
+    <a href="https://x.com/Agent_Agora" target="_blank" rel="noreferrer">X</a>
+    <a href="https://github.com/Datwebguy/agent-agora" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="https://docs.gokite.ai/" target="_blank" rel="noreferrer">Kite Docs</a>
+    <a href="https://docs.gokite.ai/kite-agent-passport/kite-agent-passport" target="_blank" rel="noreferrer">Agent Passport</a>
+  </div>
+</footer>
+
+<script>
+function setPrompt(text){document.getElementById('prompt').value=text}
+function publicBase(){
+  if(location.hostname==='127.0.0.1'||location.hostname==='localhost'||location.hostname==='0.0.0.0'){
+    return 'https://agentagora.fly.dev';
+  }
+  return location.origin;
+}
+function show(title, data, isError){
+  var p=document.getElementById('result-panel');
+  document.getElementById('result-title').textContent=title;
+  p.querySelector('#result').outerHTML='<div id="result">'+renderResult(data,isError)+'</div>';
+  p.style.display='block';
+  p.className='panel result'+(isError?' error':'');
+}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function proof(data){return esc((data&&data.payment&&data.payment.tx_hash)||data.attestation_hash||'')}
+function raw(data){return '<details><summary class="kv">Raw proof payload</summary><pre>'+esc(JSON.stringify(data,null,2))+'</pre></details>'}
+function sourceList(r){
+  var sources=(r&&r.sources)||[];
+  if(!sources.length){return ''}
+  return '<div class="email-box"><div class="subject">Sources</div><ul>'+sources.slice(0,8).map(function(s){return '<li><a href="'+esc(s.url)+'" target="_blank" rel="noreferrer" style="color:var(--green)">'+esc(s.title||s.url)+'</a></li>'}).join('')+'</ul></div>';
+}
+function renderResult(data,isError){
+  if(isError || !data || !data.result){
+    if(data && typeof data==='object' && data.error){
+      var details=(data.details||[]).map(function(d){return '<li>'+esc(d.field||'request')+': '+esc(d.message||d.type||'Invalid value')+'</li>'}).join('');
+      return '<div class="result-card"><h3>'+esc(data.error)+'</h3><p>'+esc(data.hint||'Check the request and try again.')+'</p>'+(details?'<div class="email-box"><div class="subject">Details</div><ul>'+details+'</ul></div>':'')+'</div>';
+    }
+    return '<pre>'+esc(typeof data==='string'?data:JSON.stringify(data,null,2))+'</pre>'
+  }
+  var r=data.result;
+  if(r.scope==='kite_catalog' && r.services){
+    var catalog=r.services.map(function(s){
+      var price=s.starting_price;
+      var priceText=price ? [price.amount, price.asset, price.unit].filter(Boolean).join(' ') : 'Pricing listed by endpoint';
+      var labels=(s.categories||[]).concat(s.tags||[]).slice(0,6).join(' · ');
+      var endpoints=(s.featured_endpoints||[]).slice(0,3).map(function(e){
+        var epPrice=e.price ? [e.price.amount, e.price.asset, e.price.unit].filter(Boolean).join(' ') : '';
+        return '<li><span class="kv">'+esc(e.method||'GET')+'</span> '+esc(e.path||e.url||'endpoint')+(e.summary?' — '+esc(e.summary):'')+(epPrice?' · '+esc(epPrice):'')+'</li>';
+      }).join('');
+      return '<div class="mini-card"><strong>'+esc(s.name)+'</strong><p>'+esc(s.summary||'Kite catalog service')+'</p><p class="kv">'+esc(s.payment_approach||'payment')+' · '+esc(priceText)+'</p>'+(labels?'<p class="kv">'+esc(labels)+'</p>':'')+(s.base_url?'<p class="kv">'+esc(s.base_url)+'</p>':'')+(endpoints?'<ul>'+endpoints+'</ul>':'')+'</div>';
+    }).join('');
+    var klinks=(r.official_links||[]).map(function(x){return '<li><a href="'+esc(x)+'" target="_blank" rel="noreferrer" style="color:var(--green)">'+esc(x)+'</a></li>'}).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><p>'+esc(r.note||'')+'</p><p class="kv">Source: '+esc(r.backend||'Kite discovery')+' · Showing '+esc(r.count||0)+' of '+esc(r.total||0)+'</p><div class="cards">'+catalog+'</div><div class="email-box"><div class="subject">Official links</div><ul>'+klinks+'</ul></div><p class="kv">Attestation: '+esc(data.attestation_hash||'')+'</p>'+raw(data)+'</div>';
+  }
+  if(r.scope==='kite_passport' && r.services){
+    var svc=r.services.map(function(s){return '<div class="mini-card"><strong>'+esc(s.name)+'</strong><p>'+esc(s.what_it_does)+'</p><p class="kv">'+esc(s.example)+'</p></div>'}).join('');
+    var links=(r.official_links||[]).map(function(x){return '<li><a href="'+esc(x)+'" target="_blank" rel="noreferrer" style="color:var(--green)">'+esc(x)+'</a></li>'}).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><p>'+esc(r.note||'')+'</p><div class="cards">'+svc+'</div><div class="email-box"><div class="subject">Official links</div><ul>'+links+'</ul></div><p class="kv">Attestation: '+esc(data.attestation_hash||'')+'</p>'+raw(data)+'</div>';
+  }
+  if(r.scope==='agent_agora'){
+    var live=(r.live_services||[]).map(function(x){return '<li>'+esc(x)+'</li>'}).join('');
+    var eps=(r.paid_endpoints||[]).map(function(x){return '<li>'+esc(x)+'</li>'}).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><div class="cards"><div class="mini-card"><strong>Live services</strong><ul>'+live+'</ul></div><div class="mini-card"><strong>Paid endpoints</strong><ul>'+eps+'</ul></div><div class="mini-card"><strong>Settlement</strong><p class="kv">'+esc(r.network)+'</p><p class="kv">'+esc(r.wallet)+'</p></div></div><p class="kv">Attestation: '+esc(data.attestation_hash||'')+'</p>'+raw(data)+'</div>';
+  }
+  if(r.itinerary){
+    var days=r.itinerary.map(function(d){return '<div class="mini-card"><strong>Day '+esc(d.day)+': '+esc(d.theme)+'</strong><ul>'+((d.plan||[]).map(function(x){return '<li>'+esc(x)+'</li>'}).join(''))+'</ul></div>'}).join('');
+    var delivery=r.email_delivery||{};
+    var status=delivery.status==='sent'?'Email sent to '+esc(delivery.to):'Email not sent: '+esc(delivery.reason||'mail provider is not configured');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><div class="cards">'+days+'</div><div class="email-box"><div class="subject">'+esc(r.email_draft.subject)+'</div><p>'+esc(r.email_draft.body)+'</p><p class="kv">'+status+'</p></div>'+sourceList(r)+'<p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  if(r.content && r.email_draft){
+    var gd=r.email_delivery||{};
+    var gs=gd.status==='sent'?'Email sent to '+esc(gd.to):'Email not sent: '+esc(gd.reason||'mail provider is not configured');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><div class="email-box"><div class="subject">'+esc(r.email_draft.subject)+'</div><p>'+esc(r.content).replace(/\n/g,'<br>')+'</p><p class="kv">'+gs+'</p></div><p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  if(r.findings && r.deliverable_type==='research_brief'){
+    var fs=r.findings.map(function(f){return '<div class="mini-card"><strong>'+esc(f.title)+'</strong><p>'+esc(f.detail)+'</p></div>'}).join('');
+    var rd=r.email_delivery||{};
+    var rs=rd.status==='sent'?'Email sent to '+esc(rd.to):'Email not sent: '+esc(rd.reason||'no recipient provided');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><p class="kv">'+esc(r.topic)+'</p><div class="cards">'+fs+'</div>'+sourceList(r)+'<p class="kv">'+rs+'</p><p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  if(r.findings && r.deliverable_type==='code_review'){
+    var cr=r.findings.map(function(f){
+      var detail = f.detail || ((f.evidence?'Evidence: '+f.evidence+' ':'')+(f.risk?'Risk: '+f.risk+' ':'')+(f.fix?'Fix: '+f.fix:''));
+      return '<div class="decision"><div><strong>'+esc(String(f.severity||'info').toUpperCase())+' · '+esc(f.title)+'</strong><p>'+esc(detail)+'</p></div></div>'
+    }).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3>'+cr+'<div class="email-box"><div class="subject">Recommendations</div><ul>'+((r.recommendations||[]).map(function(x){return '<li>'+esc(x)+'</li>'}).join(''))+'</ul></div>'+(r.confidence_note?'<p class="muted">'+esc(r.confidence_note)+'</p>':'')+'<p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  if(r.receipt){
+    var rc=r.receipt;
+    var secs=(r.sections||[]).map(function(s){
+      return '<div class="mini-card"><strong>'+esc(s.heading)+'</strong><ul>'+((s.items||[]).map(function(x){return '<li>'+esc(x)+'</li>'}).join(''))+'</ul></div>';
+    }).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><div class="email-box"><div class="subject">'+esc(rc.title||rc.receipt_id)+'</div><p>'+esc(rc.purpose||r.invoice_text)+'</p><p class="kv">Receipt: '+esc(rc.receipt_id)+'</p><p class="kv">Network: '+esc(rc.network)+'</p><p class="kv">Merchant: '+esc(rc.merchant_wallet)+'</p><p class="kv">Tx: '+esc(rc.tx_hash)+'</p></div><div class="cards">'+secs+'</div><p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  if(r.items && r.deliverable_type==='shopping_brief'){
+    var items=r.items.map(function(x){return '<div class="mini-card"><strong>'+esc(x.name)+'</strong><p>'+esc(x.reason)+'</p><p class="kv">'+esc(x.target_price_usd)+' USD</p></div>'}).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3><div class="cards">'+items+'</div><p>'+esc(r.checkout_policy)+'</p>'+sourceList(r)+'<p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  if(r.decisions){
+    var rows=r.decisions.map(function(d){
+      var e=d.evidence||{};
+      var meta=['24h '+esc(e.change_24h_pct==null?'n/a':Number(e.change_24h_pct).toFixed(2)+'%'),'7d '+esc(e.change_7d_pct==null?'n/a':Number(e.change_7d_pct).toFixed(2)+'%'),'vol '+esc(e.volume_24h_usd==null?'n/a':'$'+Number(e.volume_24h_usd).toLocaleString())].join(' · ');
+      return '<div class="decision"><div><strong>'+esc(d.asset)+' · '+esc(d.action)+'</strong><p>'+esc(d.reasoning)+'</p><p class="kv">'+meta+'</p></div><span class="pill">'+esc(d.confidence)+'%</span></div>'
+    }).join('');
+    return '<div class="result-card"><h3>'+esc(r.summary)+'</h3>'+rows+'<p class="kv">Settlement proof: '+proof(data)+'</p>'+raw(data)+'</div>';
+  }
+  return '<pre>'+esc(JSON.stringify(data,null,2))+'</pre>';
+}
+function showPaymentRequired(data){
+  var prompt=document.getElementById('prompt').value.trim();
+  var endpoint=publicBase() + '/api/agent/work-orders';
+  var body=JSON.stringify({prompt:prompt}).replace(/'/g, "\\'");
+  var req=(data.accepts&&data.accepts[0])||{};
+  var amount=req.maxAmountRequired ? (parseInt(req.maxAmountRequired,10)/1000000).toFixed(2) : '0.05';
+  document.getElementById('result-title').textContent='Kite Payment Required';
+  document.getElementById('result').innerHTML =
+    '<div class="paybox">'+
+    '<strong>This task costs '+amount+' USDC on Kite.</strong>'+
+    '<p>You have two options:</p>'+
+    '<p><b>Option A — Session key (recommended):</b> Pay 0.50 USDC once on the Session page and get a 24-hour key. Paste it above and run unlimited tasks.</p>'+
+    '<p><b>Option B — One-time payment:</b> Send exactly '+amount+' USDC to the Agent Agora wallet on Kite, paste the transaction hash above, and run the agent once.</p>'+
+    '<span class="cmd">kpass wallet send --to '+(req.payTo||'0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283')+' --amount '+amount+' --asset USDC</span>'+
+    '<div class="mini"><button onclick="copyPayCommand()">Copy payment command</button><a href="/session">Get a session key &rarr;</a><a href="/guide">Setup guide</a></div>'+
+    '</div>';
+  document.getElementById('result-panel').style.display='block';
+  document.getElementById('result-panel').className='panel result';
+}
+function showInvalidKey(data){
+  var msg=(data&&data.error)||'Agent Session key is not active.';
+  document.getElementById('result-title').textContent='Agent Session Not Active';
+  document.getElementById('result').innerHTML =
+    '<div class="paybox">'+
+    '<strong>'+msg+'</strong>'+
+    '<p>Use the exact <code>session_key</code> returned by the Session page. For this public host, create a session by sending 0.50 USDC directly, then minting the key at <code>/session</code>.</p>'+
+    '<span class="cmd">kpass wallet send --to 0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283 --amount 0.50 --asset USDC</span>'+
+    '<p style="margin:8px 0 4px;font-size:12px;color:var(--text2)">Then paste the returned hash on the Session page to mint your key, or run:</p>'+
+    '<span class="cmd">curl -X POST "'+publicBase()+'/api/agent/session" -H "X-Kite-Tx-Hash: 0x_your_returned_hash"</span>'+
+    '<div class="mini"><button onclick="copyPayCommand()">Copy command</button><a href="/session">Create session</a><a href="/guide">Setup guide</a></div>'+
+    '</div>';
+  document.getElementById('result-panel').style.display='block';
+  document.getElementById('result-panel').className='panel result';
+}
+function copyPayCommand(){
+  var cmd=document.querySelector('.cmd');
+  if(cmd&&navigator.clipboard){navigator.clipboard.writeText(cmd.textContent)}
+}
+function loadSkills(){
+  fetch('/api/agent/skills').then(r=>r.json()).then(data=>{
+    document.getElementById('skills').innerHTML=(data.skills||[]).map(s=>
+      '<div class="skill"><div class="skill-top"><span class="skill-name">'+s.name+'</span><span class="badge '+s.status+'">'+s.status+'</span></div><p>'+s.description+'</p></div>'
+    ).join('');
+  });
+}
+function loadSavedSession(){
+  var key=localStorage.getItem('agentAgoraSessionKey')||'';
+  var input=document.getElementById('key');
+  if(key && input && !input.value){input.value=key}
+}
+var _lastHash='';
+function showReceipt(data,promptText){
+  var hash=data.attestation_hash||(data.payment&&data.payment.tx_hash)||'';
+  if(!hash)return;
+  _lastHash=hash;
+  document.getElementById('receipt-hash').textContent=hash;
+  document.getElementById('receipt-task').textContent='Task: '+(promptText||'').slice(0,120)+((promptText||'').length>120?'…':'');
+  document.getElementById('receipt-ts').textContent=new Date().toISOString().replace('T',' ').slice(0,19)+' UTC';
+  var chainTx=data.chain_attestation_tx||'';
+  var chainRow=document.getElementById('receipt-chain-row');
+  var chainLink=document.getElementById('receipt-chain-link');
+  var explorerBtn=document.getElementById('receipt-explorer-btn');
+  if(chainTx){
+    chainLink.textContent=chainTx.slice(0,16)+'...'+chainTx.slice(-8);
+    chainLink.href='https://kitescan.ai/tx/'+chainTx;
+    chainRow.style.display='grid';
+    explorerBtn.href='https://kitescan.ai/tx/'+chainTx;
+    explorerBtn.style.display='';
+  } else {
+    chainRow.style.display='none';
+    explorerBtn.style.display='none';
+  }
+  document.getElementById('receipt-panel').style.display='block';
+}
+function copyAttestation(){if(_lastHash&&navigator.clipboard)navigator.clipboard.writeText(_lastHash);}
+function submitWork(){
+  var prompt=document.getElementById('prompt').value.trim();
+  var key=document.getElementById('key').value.trim();
+  document.getElementById('receipt-panel').style.display='none';
+  var headers={'Content-Type':'application/json'};
+  if(key){
+    if(key.indexOf('aa_')===0){headers['X-API-Key']=key}
+    else if(key.indexOf('0x')===0){headers['X-Kite-Tx-Hash']=key}
+  }
+  show('Running Agent', 'Submitting work order...', false);
+  fetch('/api/agent/work-orders',{method:'POST',headers:headers,body:JSON.stringify({prompt:prompt})})
+    .then(async r=>{var text=await r.text();var data;try{data=JSON.parse(text)}catch(e){data=text}if(!r.ok){if(r.status===402&&data&&data.accepts){showPaymentRequired(data);return null}if(r.status===401&&data&&data.error){showInvalidKey(data);return null}throw data}return data})
+    .then(data=>{if(data!==null){show('Completed Work Order',data,false);showReceipt(data,document.getElementById('prompt').value.trim());}})
+    .catch(err=>show('Work Order Needs Attention', err, true));
+}
+function freeSnap(asset){
+  var box=document.getElementById('free-result');
+  box.style.display='block';
+  box.innerHTML='<div class="stat-box" style="color:var(--text2);font:13px var(--mono)">Fetching live '+asset+' data…</div>';
+  fetch('/api/market/free?asset='+asset)
+    .then(function(r){return r.json()})
+    .then(function(d){
+      var ch24=d.change_24h_pct==null?'N/A':((d.change_24h_pct>=0?'+':'')+Number(d.change_24h_pct).toFixed(2)+'%');
+      var ch7=d.change_7d_pct==null?'N/A':((d.change_7d_pct>=0?'+':'')+Number(d.change_7d_pct).toFixed(2)+'%');
+      var cls24=d.change_24h_pct==null?'':d.change_24h_pct>=0?'up':'down';
+      var cls7=d.change_7d_pct==null?'':d.change_7d_pct>=0?'up':'down';
+      var price=d.price_usd==null?'N/A':'$'+Number(d.price_usd).toLocaleString();
+      var fg=d.fear_greed_index==null?'—':d.fear_greed_index+' — '+esc(d.fear_greed_label||'');
+      var sigs=Object.entries(d.signals||{}).map(function(kv){return '<span class="sig">'+esc(kv[0])+': '+esc(kv[1])+'</span>'}).join('');
+      var noPrice=d.price_usd==null&&d.change_24h_pct==null;
+      var priceNote=noPrice?'<p style="font:12px var(--mono);color:var(--amber);margin-top:10px">Price data not yet available for this asset on free tier. Try BTC, ETH, SOL or DOGE.</p>':'';
+      box.innerHTML=
+        '<div style="margin-bottom:8px;font:11px var(--mono);color:var(--text3)">LIVE · '+esc(d.name||asset)+' · '+esc((d.timestamp||'').slice(0,19).replace('T',' '))+' UTC</div>'+
+        '<div class="free-grid">'+
+          '<div class="stat-box"><div class="stat-label">Price</div><div class="stat-val">'+esc(price)+'</div></div>'+
+          '<div class="stat-box"><div class="stat-label">24h Change</div><div class="stat-val '+cls24+'">'+esc(ch24)+'</div></div>'+
+          '<div class="stat-box"><div class="stat-label">7d Change</div><div class="stat-val '+cls7+'">'+esc(ch7)+'</div></div>'+
+          '<div class="stat-box"><div class="stat-label">Fear &amp; Greed</div><div class="stat-val" style="font-size:16px">'+esc(fg)+'</div></div>'+
+        '</div>'+
+        (sigs?'<div class="signal-row">'+sigs+'</div>':'')+
+        priceNote+
+        '<p style="font:11px var(--mono);color:var(--text3);margin-top:10px">Free preview — for full AI analysis, signal score, and on-chain proof, paste your session key below and run a work order.</p>';
+    })
+    .catch(function(){box.innerHTML='<div class="stat-box" style="color:var(--red)">Could not fetch data. Try again.</div>'});
+}
+loadSavedSession();
+loadSkills();
+</script>
+</body>
+</html>

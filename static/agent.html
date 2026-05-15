@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agent Agora — Agent Proof Feed</title>
+<link rel="icon" type="image/png" href="/static/favicon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/anim.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="/static/anim.js" defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#111;--bg2:#161616;--bg3:#1c1c1c;--card:#181818;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --green:#00d97e;--green-dim:rgba(0,217,126,0.10);
+  --red:#e03333;--amber:#f5a623;--blue:#4b8ef5;--purple:#a78bfa;
+  --text:#ececec;--text2:#888;--text3:#505050;
+  --font:'DM Sans',sans-serif;--mono:'Space Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.026) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.026) 1px,transparent 1px);
+  background-size:72px 72px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;padding:0 28px;gap:12px;
+  border-bottom:1px solid var(--border);background:rgba(17,17,17,0.92);backdrop-filter:blur(12px);}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.logo img{width:28px;height:28px;border-radius:7px;}
+.logo-text{font-weight:700;font-size:15px;color:var(--text);}
+.nav-links{margin-left:auto;display:flex;align-items:center;gap:4px;}
+.nav-link{padding:6px 12px;border-radius:8px;color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:all .15s;}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,0.06);color:var(--text);}
+.nav-cta{margin-left:8px;padding:6px 14px;background:var(--green);color:#000;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none;}
+main{max-width:1100px;margin:0 auto;padding:80px 24px 60px;}
+
+/* hero */
+.agent-hero{display:flex;align-items:center;gap:16px;margin-bottom:32px;}
+.agent-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--blue));
+  display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.agent-title h1{font-size:22px;font-weight:800;margin-bottom:2px;}
+.agent-title p{color:var(--text2);font-size:13px;}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.status-pill.running{background:rgba(0,217,126,0.12);color:var(--green);}
+.status-pill.idle{background:rgba(255,255,255,0.06);color:var(--text2);}
+.pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.4s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* stat row */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+@media(max-width:700px){.stat-row{grid-template-columns:1fr 1fr;}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.stat-val{font-size:22px;font-weight:800;font-family:var(--mono);}
+.stat-val.green{color:var(--green);}
+.stat-val.amber{color:var(--amber);}
+.stat-val.red{color:var(--red);}
+
+/* feed */
+.feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.feed-header h2{font-size:15px;font-weight:700;}
+.feed-refresh{font-size:12px;color:var(--text3);}
+.feed{display:flex;flex-direction:column;gap:10px;}
+.feed-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;}
+.feed-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.feed-card.BUY::before{background:var(--green);}
+.feed-card.SELL::before{background:var(--red);}
+.feed-card.HOLD::before{background:var(--amber);}
+.feed-card.SNAPSHOT::before{background:var(--blue);}
+.feed-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.feed-action{font-size:13px;font-weight:800;font-family:var(--mono);padding:3px 8px;border-radius:5px;}
+.feed-action.BUY{background:rgba(0,217,126,0.12);color:var(--green);}
+.feed-action.SELL{background:rgba(224,51,51,0.12);color:var(--red);}
+.feed-action.HOLD{background:rgba(245,166,35,0.12);color:var(--amber);}
+.feed-action.SNAPSHOT{background:rgba(75,142,245,0.10);color:var(--blue);}
+.feed-asset{font-size:15px;font-weight:800;}
+.feed-price{margin-left:auto;font-size:13px;color:var(--text2);font-family:var(--mono);}
+.feed-ts{font-size:11px;color:var(--text3);}
+.feed-rationale{font-size:13px;color:var(--text2);margin:4px 0 10px;}
+.feed-meta{display:flex;gap:12px;flex-wrap:wrap;}
+.feed-badge{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.04);color:var(--text2);font-family:var(--mono);}
+.feed-hash{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:8px;word-break:break-all;}
+.feed-empty{text-align:center;padding:48px;color:var(--text3);font-size:14px;}
+.conf-bar{height:3px;border-radius:2px;background:rgba(255,255,255,0.06);margin-top:8px;overflow:hidden;}
+.conf-fill{height:100%;border-radius:2px;background:var(--green);transition:width .4s;}
+.conf-fill.amber{background:var(--amber);}
+.conf-fill.red{background:var(--red);}
+
+/* how it works */
+.how-section{margin-top:40px;}
+.how-section h2{font-size:15px;font-weight:700;margin-bottom:16px;}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:700px){.steps{grid-template-columns:1fr 1fr;}}
+.step{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.step-num{font-size:11px;font-weight:700;color:var(--green);margin-bottom:8px;font-family:var(--mono);}
+.step-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.step-desc{font-size:12px;color:var(--text2);}
+.chain-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(167,139,250,0.1);color:var(--purple);border-radius:20px;font-size:11px;font-weight:700;font-family:var(--mono);}
+.site-footer{position:relative;z-index:1;padding:28px 24px 34px;color:var(--text3);font:12px var(--mono);text-align:center;border-top:1px solid var(--border);margin-top:12px}.site-footer .footer-links{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:9px}.site-footer a{color:var(--text2);text-decoration:none}.site-footer a:hover{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="noise"></div>
+<div class="cursor-glow"></div>
+<div class="blob blob-1" style="opacity:.07"></div>
+<div class="blob blob-2" style="opacity:.06"></div>
+<nav>
+  <a class="logo" href="/">
+    <img src="/static/logo.png" alt="Agent Agora"/>
+    <span class="logo-text">Agent Agora</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="/work">Work</a>
+    <a class="nav-link" href="/session">Session</a>
+    <a class="nav-link" href="/guide">Guide</a>
+    <a class="nav-link active" href="/agent">Agent</a>
+    <a class="nav-link" href="/app">Dashboard</a>
+    <a class="nav-cta" href="/session">Create Session</a>
+  </div>
+</nav>
+
+<main>
+  <!-- Hero -->
+  <div class="agent-hero">
+    <div class="agent-avatar">🤖</div>
+    <div class="agent-title">
+      <h1>Agent Proof Feed</h1>
+      <p>Shows what the agent did after settlement: routed work, paid-service usage, Kite tx proof, attestations, and completed outputs.</p>
+    </div>
+    <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+      <div id="status-pill" class="status-pill idle"><span class="pulse"></span><span id="status-text">Loading…</span></div>
+      <span class="chain-badge">⛓ Kite Mainnet</span>
+    </div>
+  </div>
+
+  <!-- Agent summary -->
+  <p id="agent-summary" style="color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.6"></p>
+
+  <!-- Stats -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Decisions</div>
+      <div class="stat-val" id="stat-total">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">BUY Signals</div>
+      <div class="stat-val green" id="stat-buy">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">SELL Signals</div>
+      <div class="stat-val red" id="stat-sell">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Confidence</div>
+      <div class="stat-val amber" id="stat-conf">—</div>
+    </div>
+  </div>
+
+  <!-- Feed -->
+  <div class="feed-header">
+    <h2>Live Decision Feed</h2>
+    <span class="feed-refresh" id="last-refresh">Refreshing every 15s…</span>
+  </div>
+  <div class="feed" id="feed"><div class="feed-empty">Loading agent decisions…</div></div>
+
+  <!-- How it works -->
+  <div class="how-section">
+    <h2>How the Agent Works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01 DISCOVER</div>
+        <div class="step-title">Reads The Task</div>
+        <div class="step-desc">Receives a plain-English work order, checks available skills, and discovers supported Kite services when the task needs outside tools.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02 SETTLE</div>
+        <div class="step-title">Settles Payment</div>
+        <div class="step-desc">Uses an Agent Session key, x402 where supported, or one-time Kite tx proof before protected work executes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03 WORK</div>
+        <div class="step-title">Runs Live Skills</div>
+        <div class="step-desc">Routes the prompt to market intelligence, research, writing, receipts, code review, travel, shopping briefs, or Kite service discovery.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04 ATTEST</div>
+        <div class="step-title">Publishes Proof</div>
+        <div class="step-desc">Every decision or work order gets an attestation hash. Kite tx hashes remain the public settlement reference.</div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <div>Agent Agora - autonomous paid work and auditability on Kite.</div>
+  <div class="footer-links">
+    <a href="https://x.com/Agent_Agora" target="_blank" rel="noreferrer">X</a>
+    <a href="https://github.com/Datwebguy/agent-agora" target="_blank" rel="noreferrer">GitHub</a>
+    <a href="https://docs.gokite.ai/" target="_blank" rel="noreferrer">Kite Docs</a>
+    <a href="https://docs.gokite.ai/kite-agent-passport/kite-agent-passport" target="_blank" rel="noreferrer">Agent Passport</a>
+  </div>
+</footer>
+
+<script>
+function fmtTime(iso){
+  try{
+    var d=new Date(iso);
+    return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch(e){return iso;}
+}
+function fmtPrice(p){
+  if(!p&&p!==0) return '—';
+  return '$'+parseFloat(p).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function confClass(c){
+  if(c>=65) return '';
+  if(c>=40) return 'amber';
+  return 'red';
+}
+
+function renderFeed(feed){
+  if(!feed||!feed.length){
+    document.getElementById('feed').innerHTML='<div class="feed-empty">No decisions yet — run <code>python agent.py</code> to start the agent.</div>';
+    return;
+  }
+  var buys=0,sells=0,holds=0,confSum=0,confCount=0;
+  var html='';
+  feed.forEach(function(d){
+    var act=d.action||'HOLD';
+    if(act==='BUY') buys++;
+    else if(act==='SELL') sells++;
+    else if(act==='HOLD') holds++;
+    if(d.confidence&&act!=='SNAPSHOT'){confSum+=d.confidence;confCount++;}
+    var cc=confClass(d.confidence||0);
+    var confPct=(d.confidence||0)+'%';
+    html+='<div class="feed-card '+act+'">';
+    html+='<div class="feed-top">';
+    html+='<span class="feed-action '+act+'">'+act+'</span>';
+    html+='<span class="feed-asset">'+d.asset+'</span>';
+    if(d.price_usd) html+='<span class="feed-price">'+fmtPrice(d.price_usd)+'</span>';
+    html+='</div>';
+    html+='<div class="feed-ts">'+fmtTime(d.ts)+'</div>';
+    html+='<div class="feed-rationale">'+(d.rationale||d.reasoning||'')+'</div>';
+    html+='<div class="feed-meta">';
+    if(act!=='SNAPSHOT'&&d.confidence){
+      html+='<span class="feed-badge">Confidence '+d.confidence+'%</span>';
+    }
+    if(d.risk_level&&act!=='SNAPSHOT'){
+      html+='<span class="feed-badge">Risk '+d.risk_level+'/5</span>';
+    }
+    if(d.stop_loss_pct&&act!=='SNAPSHOT'){
+      html+='<span class="feed-badge">SL '+d.stop_loss_pct+'%</span>';
+    }
+    if(d.take_profit_pct&&act!=='SNAPSHOT'){
+      html+='<span class="feed-badge">TP +'+d.take_profit_pct+'%</span>';
+    }
+    if(d.fear_greed_index){
+      html+='<span class="feed-badge">F&G '+d.fear_greed_index+'</span>';
+    }
+    if(d.settled_in){
+      html+='<span class="feed-badge">'+d.settled_in+'</span>';
+    }
+    html+='</div>';
+    if(act!=='SNAPSHOT'&&d.confidence){
+      html+='<div class="conf-bar"><div class="conf-fill '+cc+'" style="width:'+confPct+'"></div></div>';
+    }
+    if(d.attestation_hash){
+      html+='<div class="feed-hash">🔐 Attestation: '+d.attestation_hash+'</div>';
+    }
+    if(d.chain_attestation_tx){
+      var shortTx=d.chain_attestation_tx.slice(0,14)+'...'+d.chain_attestation_tx.slice(-8);
+      html+='<div class="feed-hash">⛓ Kite chain: <a href="https://kitescan.ai/tx/'+d.chain_attestation_tx+'" target="_blank" rel="noreferrer" style="color:var(--green);text-decoration:none;">'+shortTx+'</a></div>';
+    }
+    if(d.payment_tx_hash){
+      html+='<div class="feed-hash">⛓ Payment tx: '+d.payment_tx_hash+'</div>';
+    }
+    if(d.kpass_session_id){
+      html+='<div class="feed-hash">KPass session: '+d.kpass_session_id+'</div>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('feed').innerHTML=html;
+  var nonSnapshot=feed.filter(function(d){return d.action!=='SNAPSHOT';});
+  document.getElementById('stat-total').textContent=nonSnapshot.length;
+  document.getElementById('stat-buy').textContent=buys;
+  document.getElementById('stat-sell').textContent=sells;
+  document.getElementById('stat-conf').textContent=confCount?Math.round(confSum/confCount)+'%':'—';
+  var lastTs=feed.length?new Date(feed[0].ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):null;
+  var summaryEl=document.getElementById('agent-summary');
+  if(summaryEl){
+    if(feed.length){
+      summaryEl.textContent='The autonomous agent has posted '+nonSnapshot.length+' decisions to Kite Mainnet'+(lastTs?', last active at '+lastTs:'')+': '+buys+' BUY, '+sells+' SELL, '+holds+' HOLD. Every decision is written to Kite chain — click any chain tx link to verify independently on kitescan.ai.';
+    }else{
+      summaryEl.textContent='No agent decisions yet. Run agent.py to start the autonomous market intelligence loop.';
+    }
+  }
+}
+
+function load(){
+  fetch('/api/agent/feed?limit=30')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var feed=data.feed||[];
+      renderFeed(feed);
+      var pill=document.getElementById('status-pill');
+      var txt=document.getElementById('status-text');
+      if(feed.length>0){
+        var last=new Date(feed[0].ts);
+        var age=(Date.now()-last)/1000;
+        if(age<600){
+          pill.className='status-pill running';
+          txt.textContent='Agent Running';
+        } else {
+          pill.className='status-pill idle';
+          txt.textContent='Agent Idle';
+        }
+      } else {
+        pill.className='status-pill idle';
+        txt.textContent='No Activity';
+      }
+      document.getElementById('last-refresh').textContent='Updated '+new Date().toLocaleTimeString();
+    })
+    .catch(function(){
+      document.getElementById('feed').innerHTML='<div class="feed-empty">Could not load agent feed.</div>';
+    });
+}
+
+load();
+setInterval(load,15000);
+</script>
+</body>
+</html>

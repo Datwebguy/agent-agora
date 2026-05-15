@@ -1,0 +1,55 @@
+app = "agentagora"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[processes]
+  app = "python market_service.py"
+  worker = "python agent.py"
+
+[env]
+  PORT = "8080"
+  AUDIT_LOG = "/data/audit.jsonl"
+  SUBSCRIPTIONS_FILE = "/data/subscriptions.jsonl"
+  AGENT_FEED = "/data/agent_feed.jsonl"
+  PUBLIC_BASE_URL = "https://agentagora.fly.dev"
+  SERVICE_WALLET = "0x9b6E1ED09f9dD4A3537324e8DF66756A2ceEf283"
+  AGORA_URL = "https://agentagora.fly.dev"
+  AGENT_INTERVAL = "300"
+  AGENT_MAX_OPPORTUNITIES = "25"
+  AGENT_SIGNAL_FILTER = "ALL"
+  AGENT_MIN_CONFIDENCE = "40"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  path = "/api/health"
+  timeout = "5s"
+
+[[mounts]]
+  source = "agora_data"
+  destination = "/data"
+  initial_size = "1gb"
+  processes = ["app"]
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+  processes = ["app"]
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+  processes = ["worker"]
